@@ -228,7 +228,7 @@ static void makeContextCurrentEGL(_GLFWwindow* window) {
             return;
         }
     } else {
-     // debug_printf("makeContextCurrentEGL: eglMakeCurrent egl.display=%p egl.surface=EGL_NO_SURFACE egl.context=EGL_NO_CONTEXT\n", _glfw.egl.display);
+        // debug_printf("makeContextCurrentEGL: eglMakeCurrent egl.display=%p egl.surface=EGL_NO_SURFACE egl.context=EGL_NO_CONTEXT\n", _glfw.egl.display);
         if (!eglMakeCurrent(_glfw.egl.display,
             EGL_NO_SURFACE,
             EGL_NO_SURFACE,
@@ -243,6 +243,7 @@ static void makeContextCurrentEGL(_GLFWwindow* window) {
     _glfwPlatformSetTls(&_glfw.contextSlot, window);
 }
 
+#ifdef _GLFW_KMSDRM
 static void page_flip_handler(int fd, unsigned int frame, unsigned int sec, unsigned int usec, void* data) {
     /* suppress 'unused parameter' warnings */
     (void) fd, (void) frame, (void) sec, (void) usec;
@@ -250,6 +251,7 @@ static void page_flip_handler(int fd, unsigned int frame, unsigned int sec, unsi
     int* waiting_for_flip = data;
     *waiting_for_flip = 0;
 }
+#endif
 
 #ifdef DEBUG
 #ifdef __linux__
@@ -579,7 +581,7 @@ GLFWbool _glfwInitEGL(void) {
         _glfwTerminateEGL();
         return GLFW_FALSE;
     } else {
-     // printf("_glfwInitEGL: using EGL Library version %d.%d\n", major, minor);
+        // printf("_glfwInitEGL: using EGL Library version %d.%d\n", major, minor);
         debug_printf("\n===================================\n");
         printf("EGL information:\n");
         printf("  version: %s\n", eglQueryString(_glfw.egl.display, 0x3054));
@@ -787,7 +789,7 @@ GLFWbool _glfwCreateContextEGL(_GLFWwindow* window,
         // debug_printf("eglCreateWindowSurface(egl.display=%p, native=%p) => %p\n", _glfw.egl.display, native, window->context.egl.surface);
         // debug_printf("=====================================\n");
     } else if (_glfw.egl.platform == EGL_PLATFORM_SURFACELESS_MESA) {
-     // HACK: Use a pbuffer surface as the default framebuffer
+        // HACK: Use a pbuffer surface as the default framebuffer
         debug_puts("eglCreatePbufferSurface");
         window->context.egl.surface = eglCreatePbufferSurface(_glfw.egl.display, config, attribs);
     } else {
@@ -799,7 +801,7 @@ GLFWbool _glfwCreateContextEGL(_GLFWwindow* window,
         _glfwInputError(GLFW_PLATFORM_ERROR, "EGL: Failed to create window surface: %s", getEGLErrorString(eglGetError()));
         return GLFW_FALSE;
     } else {
-     // debug_printf("egl_context.c: Successfully create EGL Window Surface for Platform=0x%04X native=%p\n", _glfw.egl.platform, native);
+        // debug_printf("egl_context.c: Successfully create EGL Window Surface for Platform=0x%04X native=%p\n", _glfw.egl.platform, native);
     }
 
     window->context.egl.config = config;
