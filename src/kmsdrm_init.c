@@ -49,11 +49,10 @@ return GLFW_FALSE;
 
 // Add a function to count the number of open files for a given PID
 #define MAX_PATH 1024
-int count_open_files()
-{
+int count_open_files() {
     char path[MAX_PATH];
-    struct dirent *entry;
-    DIR *dir;
+    struct dirent* entry;
+    DIR* dir;
     int count = 0;
 
     // Build the path to the /proc/[pid]/fd/ directory
@@ -61,18 +60,15 @@ int count_open_files()
 
     // Open the directory
     dir = opendir(path);
-    if (dir == NULL)
-    {
+    if (dir == NULL) {
         perror("Failed to open directory");
         return -1;
     }
 
     // Read each entry in the /proc/[pid]/fd/ directory
-    while ((entry = readdir(dir)) != NULL)
-    {
+    while ((entry = readdir(dir)) != NULL) {
         // Skip '.' and '..'
-        if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
-        {
+        if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) {
             continue;
         }
 
@@ -354,7 +350,7 @@ GLFWbool _glfwInitKMSDRM(void) {
 
     if (!_glfwInitJoysticksLinux())
         return GLFW_FALSE;
-    
+
     return GLFW_TRUE;
 }
 

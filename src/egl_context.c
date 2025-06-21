@@ -315,10 +315,34 @@ static void swapBuffersEGL(_GLFWwindow* window) {
 
     // Here you could also update drm plane layers if you want hw composition
     // debug_printf("%d swapBufferEGL: drmModePageFlip drm.fd=%d drm.crtc_id=%d fb.fb_id=%d\n", count_open_files(), _glfw.kmsdrm.drm.fd, _glfw.kmsdrm.drm.crtc_id, _glfw.kmsdrm.gbm.fb->fb_id);
-    ret = drmModePageFlip(_glfw.kmsdrm.drm.fd, _glfw.kmsdrm.drm.crtc_id, _glfw.kmsdrm.gbm.fb->fb_id, DRM_MODE_PAGE_FLIP_EVENT, &waiting_for_flip);
-    if (ret) {
-        _glfwInputError(GLFW_PLATFORM_ERROR, "swapBufferEGL: Failed to queue page flip");
-        return;
+    if (_glfw.kmsdrm.drm.atomic) {
+        drmModeAtomicReq* req = drmModeAtomicAlloc();
+        if (!req) {
+            _glfwInputError(GLFW_PLATFORM_ERROR, "swapBuffersEGL: Failed to alloc atomic request");
+            return;
+        }
+
+        drmModeAtomicAddProperty(req, _glfw.kmsdrm.drm.crtc_id,
+            _glfw.kmsdrm.drm.props.fb_id,
+            _glfw.kmsdrm.gbm.fb->fb_id);
+
+        ret = drmModeAtomicCommit(_glfw.kmsdrm.drm.fd, req,
+            DRM_MODE_ATOMIC_NONBLOCK | DRM_MODE_PAGE_FLIP_EVENT |
+            (_glfw.kmsdrm.drm.async_flip ? DRM_MODE_PAGE_FLIP_ASYNC : 0),
+            &waiting_for_flip);
+
+        drmModeAtomicFree(req);
+        if (ret) {
+            _glfwInputError(GLFW_PLATFORM_ERROR, "swapBuffersEGL: drmModeAtomicCommit failed");
+            return;
+        }
+    } else {
+        ret = drmModePageFlip(_glfw.kmsdrm.drm.fd, _glfw.kmsdrm.drm.crtc_id,
+            _glfw.kmsdrm.gbm.fb->fb_id, DRM_MODE_PAGE_FLIP_EVENT, &waiting_for_flip);
+        if (ret) {
+            _glfwInputError(GLFW_PLATFORM_ERROR, "swapBuffersEGL: drmModePageFlip failed");
+            return;
+        }
     }
 
     while (waiting_for_flip) {
