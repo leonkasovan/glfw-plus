@@ -81,7 +81,7 @@ int count_open_files() {
     return count;
 }
 
-static void createKeyTables(void) {
+static void kmsdrm_createKeyTables(void) {
     memset(_glfw.kmsdrm.keycodes, -1, sizeof(_glfw.kmsdrm.keycodes));
     // memset(_glfw.kmsdrm.scancodes, -1, sizeof(_glfw.kmsdrm.scancodes));
 
@@ -302,7 +302,7 @@ int is_keyboard(const char* device_path) {
     }
 
     // Output the device name for debugging (optional)
-    printf("Device name: %s\n", name);
+    debug_printf("Device name: %s\n", name);
 
     // Check if the device supports key events (EV_KEY)
     unsigned long evbit[2];  // 2 bits to store capability info
@@ -343,7 +343,7 @@ GLFWbool _glfwInitKMSDRM(void) {
     _glfw.report_time = get_time_ns();
 #endif    
 
-    createKeyTables();
+    kmsdrm_createKeyTables();
 
     if (!_glfwInitKeyboardsLinux())
         return GLFW_FALSE;

@@ -52,8 +52,6 @@ _glfwCreateWindowKMSDRM
         glfwMakeContextCurrent((GLFWwindow*) previous);
 */
 
-#define _GNU_SOURCE
-
 #include "internal.h"
 
 #if defined(_GLFW_KMSDRM)
@@ -92,7 +90,7 @@ static int find_drm_device(drmModeRes** resources) {
          * drmModeResources, it means it's also a
          * KMS-capable device.
          */
-        printf("[GLFW] Opening DRM device %s\n", device->nodes[DRM_NODE_PRIMARY]);
+        debug_printf("[GLFW] Opening DRM device %s\n", device->nodes[DRM_NODE_PRIMARY]);
         fd = open(device->nodes[DRM_NODE_PRIMARY], O_RDWR);
         if (fd < 0)
             continue;
@@ -191,7 +189,7 @@ int init_drm(struct drm* drm, const char* device, const char* mode_str, int conn
     int i, ret, area;
 
     if (device) {
-        drm->fd = open(device, O_RDWR);
+        drm->fd = open(device, O_RDWR | O_CLOEXEC);
         ret = get_resources("init_drm", drm->fd, &resources);
         if (ret < 0 && errno == EOPNOTSUPP)
             _glfwInputError(GLFW_PLATFORM_ERROR, "%s does not look like a modeset device\n", device);
@@ -300,6 +298,7 @@ int init_drm(struct drm* drm, const char* device, const char* mode_str, int conn
     drm->count = count;
     drm->nonblocking = nonblocking;
 
+/*
     // Detect async page flip support
     uint64_t has_async = 0;
     if (drmGetCap(drm->fd, DRM_CAP_ASYNC_PAGE_FLIP, &has_async) == 0 && has_async)
@@ -331,7 +330,7 @@ int init_drm(struct drm* drm, const char* device, const char* mode_str, int conn
         if (strcmp(p->name, "CRTC_ID") == 0) drm->props.crtc_id = p->prop_id;
         drmModeFreeProperty(p);
     }
-    drmModeFreeObjectProperties(props);
+    drmModeFreeObjectProperties(props); */
 
     return 0;
 }
@@ -352,7 +351,7 @@ int init_surface(struct gbm* gbm, uint64_t modifier) {
         _glfwInputError(GLFW_PLATFORM_ERROR, "init_surface: Failed to create gbm surface\n");
         return -3;
     }
-    printf("init_surface: %dx%d created\n", gbm->width, gbm->height);
+    debug_printf("init_surface: %dx%d created\n", gbm->width, gbm->height);
     return 0;
 }
 
@@ -377,7 +376,7 @@ int init_gbm(struct gbm* gbm, int drm_fd, int w, int h, uint32_t format, uint64_
     return init_surface(gbm, modifier);
 }
 
-static void handleEvents(double* timeout) {
+static void kmsdrm_handleEvents(double* timeout) {
 #if defined(GLFW_BUILD_LINUX_JOYSTICK)
     if (_glfw.joysticksInitialized)
         _glfwDetectJoystickConnectionLinux();
@@ -539,7 +538,7 @@ void _glfwGetFramebufferSizeKMSDRM(_GLFWwindow* window, int* width, int* height)
 
 void _glfwPollEventsKMSDRM(void) {
     double timeout = 0.0;
-    handleEvents(&timeout);
+    kmsdrm_handleEvents(&timeout);
 }
 
 void _glfwSetWindowDecoratedKMSDRM(_GLFWwindow* window, GLFWbool enabled) {
@@ -739,11 +738,11 @@ GLFWbool _glfwFramebufferTransparentKMSDRM(_GLFWwindow* window) {
 
 void _glfwWaitEventsKMSDRM(void) {
     double timeout = -1.0;
-    handleEvents(&timeout);
+    kmsdrm_handleEvents(&timeout);
 }
 
 void _glfwWaitEventsTimeoutKMSDRM(double timeout) {
-    handleEvents(&timeout);
+    kmsdrm_handleEvents(&timeout);
 }
 
 void _glfwPostEmptyEventKMSDRM(void) {

@@ -228,7 +228,7 @@ static void makeContextCurrentEGL(_GLFWwindow* window) {
             return;
         }
     } else {
-        // debug_printf("makeContextCurrentEGL: eglMakeCurrent egl.display=%p egl.surface=EGL_NO_SURFACE egl.context=EGL_NO_CONTEXT\n", _glfw.egl.display);
+     // debug_printf("makeContextCurrentEGL: eglMakeCurrent egl.display=%p egl.surface=EGL_NO_SURFACE egl.context=EGL_NO_CONTEXT\n", _glfw.egl.display);
         if (!eglMakeCurrent(_glfw.egl.display,
             EGL_NO_SURFACE,
             EGL_NO_SURFACE,
@@ -284,6 +284,7 @@ static void swapBuffersEGL(_GLFWwindow* window) {
 #endif
 
 #ifdef _GLFW_KMSDRM
+    if (_glfw.platform.platformID == GLFW_PLATFORM_KMSDRM) {
     fd_set fds;
     drmEventContext evctx = {
             .version = 2,
@@ -315,34 +316,10 @@ static void swapBuffersEGL(_GLFWwindow* window) {
 
     // Here you could also update drm plane layers if you want hw composition
     // debug_printf("%d swapBufferEGL: drmModePageFlip drm.fd=%d drm.crtc_id=%d fb.fb_id=%d\n", count_open_files(), _glfw.kmsdrm.drm.fd, _glfw.kmsdrm.drm.crtc_id, _glfw.kmsdrm.gbm.fb->fb_id);
-    if (_glfw.kmsdrm.drm.atomic) {
-        drmModeAtomicReq* req = drmModeAtomicAlloc();
-        if (!req) {
-            _glfwInputError(GLFW_PLATFORM_ERROR, "swapBuffersEGL: Failed to alloc atomic request");
-            return;
-        }
-
-        drmModeAtomicAddProperty(req, _glfw.kmsdrm.drm.crtc_id,
-            _glfw.kmsdrm.drm.props.fb_id,
-            _glfw.kmsdrm.gbm.fb->fb_id);
-
-        ret = drmModeAtomicCommit(_glfw.kmsdrm.drm.fd, req,
-            DRM_MODE_ATOMIC_NONBLOCK | DRM_MODE_PAGE_FLIP_EVENT |
-            (_glfw.kmsdrm.drm.async_flip ? DRM_MODE_PAGE_FLIP_ASYNC : 0),
-            &waiting_for_flip);
-
-        drmModeAtomicFree(req);
-        if (ret) {
-            _glfwInputError(GLFW_PLATFORM_ERROR, "swapBuffersEGL: drmModeAtomicCommit failed");
-            return;
-        }
-    } else {
-        ret = drmModePageFlip(_glfw.kmsdrm.drm.fd, _glfw.kmsdrm.drm.crtc_id,
-            _glfw.kmsdrm.gbm.fb->fb_id, DRM_MODE_PAGE_FLIP_EVENT, &waiting_for_flip);
-        if (ret) {
-            _glfwInputError(GLFW_PLATFORM_ERROR, "swapBuffersEGL: drmModePageFlip failed");
-            return;
-        }
+    ret = drmModePageFlip(_glfw.kmsdrm.drm.fd, _glfw.kmsdrm.drm.crtc_id, _glfw.kmsdrm.gbm.fb->fb_id, DRM_MODE_PAGE_FLIP_EVENT, &waiting_for_flip);
+    if (ret) {
+        _glfwInputError(GLFW_PLATFORM_ERROR, "swapBufferEGL: Failed to queue page flip");
+        return;
     }
 
     while (waiting_for_flip) {
@@ -371,9 +348,12 @@ static void swapBuffersEGL(_GLFWwindow* window) {
         gbm_surface_release_buffer(_glfw.kmsdrm.gbm.surface, _glfw.kmsdrm.gbm.bo);
     }
     _glfw.kmsdrm.gbm.bo = next_bo;
-#else
-    eglSwapBuffers(_glfw.egl.display, window->context.egl.surface);
+    }
 #endif
+
+    if (_glfw.platform.platformID == GLFW_PLATFORM_WAYLAND || _glfw.platform.platformID == GLFW_PLATFORM_X11) {
+        eglSwapBuffers(_glfw.egl.display, window->context.egl.surface);
+    }
 
 #ifdef DEBUG
 #ifdef __linux__    
@@ -605,11 +585,10 @@ GLFWbool _glfwInitEGL(void) {
         _glfwTerminateEGL();
         return GLFW_FALSE;
     } else {
-        // printf("_glfwInitEGL: using EGL Library version %d.%d\n", major, minor);
         debug_printf("\n===================================\n");
-        printf("EGL information:\n");
-        printf("  version: %s\n", eglQueryString(_glfw.egl.display, 0x3054));
-        printf("  vendor: %s\n", eglQueryString(_glfw.egl.display, 0x3053));
+        debug_printf("EGL information:\n");
+        debug_printf("  version: %s\n", eglQueryString(_glfw.egl.display, 0x3054));
+        debug_printf("  vendor: %s\n", eglQueryString(_glfw.egl.display, 0x3053));
         debug_printf("  client extensions: \"%s\"\n", eglQueryString(EGL_NO_DISPLAY, EGL_EXTENSIONS));
         debug_printf("  display extensions: \"%s\"\n", eglQueryString(_glfw.egl.display, EGL_EXTENSIONS));
         debug_printf("===================================\n");
@@ -813,7 +792,7 @@ GLFWbool _glfwCreateContextEGL(_GLFWwindow* window,
         // debug_printf("eglCreateWindowSurface(egl.display=%p, native=%p) => %p\n", _glfw.egl.display, native, window->context.egl.surface);
         // debug_printf("=====================================\n");
     } else if (_glfw.egl.platform == EGL_PLATFORM_SURFACELESS_MESA) {
-        // HACK: Use a pbuffer surface as the default framebuffer
+     // HACK: Use a pbuffer surface as the default framebuffer
         debug_puts("eglCreatePbufferSurface");
         window->context.egl.surface = eglCreatePbufferSurface(_glfw.egl.display, config, attribs);
     } else {
@@ -825,7 +804,7 @@ GLFWbool _glfwCreateContextEGL(_GLFWwindow* window,
         _glfwInputError(GLFW_PLATFORM_ERROR, "EGL: Failed to create window surface: %s", getEGLErrorString(eglGetError()));
         return GLFW_FALSE;
     } else {
-        // debug_printf("egl_context.c: Successfully create EGL Window Surface for Platform=0x%04X native=%p\n", _glfw.egl.platform, native);
+     // debug_printf("egl_context.c: Successfully create EGL Window Surface for Platform=0x%04X native=%p\n", _glfw.egl.platform, native);
     }
 
     window->context.egl.config = config;
