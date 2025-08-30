@@ -85,24 +85,24 @@ GLFWbool _glfwSelectPlatform(int desiredID, _GLFWplatform* platform) {
         const char* const session = getenv("XDG_SESSION_TYPE");
 #ifdef _GLFW_WAYLAND
         if (desiredID == GLFW_ANY_PLATFORM)
-            if ((session && strcmp(session, "wayland") == 0) || getenv("WAYLAND_DISPLAY")) {
-                desiredID = GLFW_PLATFORM_WAYLAND;
-                debug_printf("Detected Wayland session: %s\n", getenv("WAYLAND_DISPLAY"));
-            }
+        if ((session && strcmp(session, "wayland") == 0) || getenv("WAYLAND_DISPLAY")) {
+            desiredID = GLFW_PLATFORM_WAYLAND;
+            debug_printf("Detected Wayland session: %s\n", getenv("WAYLAND_DISPLAY"));
+        }
 #endif            
 #ifdef _GLFW_X11
         if (desiredID == GLFW_ANY_PLATFORM)
-            if ((session && strcmp(session, "x11") == 0) || getenv("DISPLAY")) {
-                desiredID = GLFW_PLATFORM_X11;
-                debug_printf("Detected X11 session: %s\n", getenv("DISPLAY"));
-            }
+        if ((session && strcmp(session, "x11") == 0) || getenv("DISPLAY")) {
+            desiredID = GLFW_PLATFORM_X11;
+            debug_printf("Detected X11 session: %s\n", getenv("DISPLAY"));
+        }
 #endif
 #ifdef _GLFW_KMSDRM
         if (desiredID == GLFW_ANY_PLATFORM)
-            if (session && strcmp(session, "tty") == 0) {
-                desiredID = GLFW_PLATFORM_KMSDRM;
-                debug_printf("Detected KMSDRM session: %s\n", session);
-            }
+        if (session && strcmp(session, "tty") == 0) {
+            desiredID = GLFW_PLATFORM_KMSDRM;
+            debug_printf("Detected KMSDRM session: %s\n", session);
+        }
 #endif
     }
 

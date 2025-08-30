@@ -1316,7 +1316,7 @@ GLFWAPI int glfwGetGamepadState(int jid, GLFWgamepadstate* state) {
                 state->buttons[i] = GLFW_PRESS;
             }
         } else if (e->type == _GLFW_JOYSTICK_BUTTON) {
-            if (js->buttons[e->index]) debug_printfprintf("[input.c][glfwGetGamepadState] Joystick Button %d pressed mapped to Gamepad Button %d\n", e->index, i);
+            if (js->buttons[e->index]) debug_printf("[input.c][glfwGetGamepadState] Joystick Button %d pressed mapped to Gamepad Button %d\n", e->index, i);
             state->buttons[i] = js->buttons[e->index];
         }
     }
