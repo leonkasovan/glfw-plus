@@ -113,8 +113,9 @@ static bool GuessIfAxesAreDigitalHat(struct input_absinfo* absinfo_x, struct inp
 // Apply an EV_KEY event to the specified joystick
 //
 static void handleKeyEvent(_GLFWjoystick* js, int code, int value) {
+    // debug_printf("[GLFW][linux_joystick.c] Key event: code %d, value %d, mapped to %d\n", code, value, js->linjs.keyMap[code]);
     _glfwInputJoystickButton(js,
-        js->linjs.keyMap[code - BTN_MISC],
+        js->linjs.keyMap[code],
         value ? GLFW_PRESS : GLFW_RELEASE);
 }
 
@@ -139,7 +140,7 @@ static void handleAbsEvent(_GLFWjoystick* js, int code, int value) {
         }
 
         _glfwInputJoystickAxis(js, index, normalized);
-    } else if (code >= ABS_HAT0X && code <= ABS_HAT3Y && index < js->hatCount) { // Check for hat
+    } else if (code >= ABS_HAT0X && code <= ABS_HAT3Y) { // Check for hat
         static const char stateMap[3][3] =
         {
             { GLFW_HAT_CENTERED, GLFW_HAT_UP,       GLFW_HAT_DOWN },
@@ -160,8 +161,7 @@ static void handleAbsEvent(_GLFWjoystick* js, int code, int value) {
         else if (value > 0)
             state[axis] = 2;
 
-        debug_printf("[GLFW] Hat event: ABS_HAT0X=%d, ABS_HAT3Y=%d\n", ABS_HAT0X, ABS_HAT3Y);
-        debug_printf("[GLFW] Hat event: code %d, value %d, mapped to %d\n", code, value, index);
+        // debug_printf("[GLFW] Hat event: code %d, state:%d value:%d, mapped to %d\n", code, stateMap[state[0]][state[1]], value, index);
         _glfwInputJoystickHat(js, index, stateMap[state[0]][state[1]]);
     }
 }
@@ -259,56 +259,21 @@ static GLFWbool openJoystickDevice(const char* path) {
 
     int axisCount = 0, buttonCount = 0, hatCount = 0;
 
-    for (int code = BTN_MISC; code < KEY_CNT; code++) {
+    for (int code = BTN_JOYSTICK; code < KEY_MAX; code++) {
         if (!test_bit(code, keybit))
             continue;
         debug_printf("[GLFW] Joystick has button: %d mapped to %d\n", code, buttonCount);
-        linjs.keyMap[code - BTN_MISC] = buttonCount;
+        linjs.keyMap[code] = buttonCount;
         buttonCount++;
     }
 
-    // Test in RP5 (can be deleted)
-    // for (i = 0; i < BTN_MISC; ++i) {
-    //     if (test_bit(i, keybit)) {
-    //         SDL_Log("[SDL] Joystick has button: %d mapped to %d\n", i, nbuttons);
-    //         ++nbuttons;
-    //     }
-    // }
-
-    // for (int code = 0; code < ABS_CNT; code++) {
-    //     linjs.absMap[code] = -1;
-    //     if (!test_bit(code, absbit))
-    //         continue;
-
-    //     if (code >= ABS_HAT0X && code <= ABS_HAT3Y) {
-    //         linjs.absMap[code + 1] = -1;
-    //         int hat_x = -1;
-    //         int hat_y = -1;
-    //         struct input_absinfo absinfo_x;
-    //         struct input_absinfo absinfo_y;
-    //         if (test_bit(code, absbit)) {
-    //             hat_x = ioctl(linjs.fd, EVIOCGABS(code), &absinfo_x);
-    //         }
-    //         if (test_bit(code + 1, absbit)) {
-    //             hat_y = ioctl(linjs.fd, EVIOCGABS(code + 1), &absinfo_y);
-    //         }
-    //         if (GuessIfAxesAreDigitalHat((hat_x < 0 ? (void *)0 : &absinfo_x),
-    //                                     (hat_y < 0 ? (void *)0 : &absinfo_y))) {
-    //             debug_printf("[GLFW] Joystick has hat: %d mapped to %d\n", code, hatCount);
-    //             linjs.absMap[code] = hatCount;
-    //             hatCount++;
-    //         }
-    //         // Skip the Y axis
-    //         code++;
-    //     } else {
-    //         if (ioctl(linjs.fd, EVIOCGABS(code), &linjs.absInfo[code]) < 0)
-    //             continue;
-
-    //         debug_printf("[GLFW] Joystick has axis: %d mapped to %d\n", code, axisCount);
-    //         linjs.absMap[code] = axisCount;
-    //         axisCount++;
-    //     }
-    // }
+    for (int code = 0; code < BTN_JOYSTICK; code++) {
+        if (test_bit(code, keybit)) {
+            debug_printf("[GLFW] Joystick has button: %d mapped to %d\n", code, buttonCount);
+            linjs.keyMap[code] = buttonCount;
+            buttonCount++;
+        }
+    }
 
     for (int i = ABS_HAT0X; i <= ABS_HAT3Y; i += 2) {
         int hat_x = -1;
@@ -329,6 +294,7 @@ static GLFWbool openJoystickDevice(const char* path) {
 
             debug_printf("[GLFW] Joystick has digital hat: %d mapped to %d\n", i, hatCount);
             linjs.absMap[i] = hatCount;
+            linjs.absMap[i + 1] = hatCount;
             ++hatCount;
         }
     }
