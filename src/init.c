@@ -33,6 +33,14 @@
 #include <stdarg.h>
 #include <assert.h>
 
+#if defined(_WIN32)
+#include <io.h>
+#define isatty _isatty
+#define fileno _fileno
+#else
+#include <unistd.h>
+#endif
+
 
 // NOTE: The global variables below comprise all mutable global data in GLFW
 //       Any other mutable global variable is a bug
@@ -392,6 +400,11 @@ GLFWAPI int glfwInit(void)
     if (_glfw.initialized)
         return GLFW_TRUE;
 
+    if (isatty(fileno(stdout))) {
+        setvbuf(stdout, NULL, _IOLBF, 0);  // line-buffered
+    } else {
+        setvbuf(stdout, NULL, _IONBF, 0);  // unbuffered
+    }
     memset(&_glfw, 0, sizeof(_glfw));
     _glfw.hints.init = _glfwInitHints;
 
