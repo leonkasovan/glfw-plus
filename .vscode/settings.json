@@ -1,16 +1,12 @@
 {
-    "files.associations": {
-        "fcntl.h": "c",
-        "internal.h": "c",
-        "signal.h": "c",
-        "array": "c",
-        "deque": "c",
-        "string": "c",
-        "unordered_map": "c",
-        "vector": "c",
-        "iterator": "c",
-        "string_view": "c",
-        "glfw3.h": "c",
-        "nuklear_glfw_gl2.h": "c"
-    }
+  "terminal.integrated.profiles.windows": {
+      "w64devkit": {
+          "path": "C:/w64devkit/bin/sh.exe",
+          "env": {
+              "PATH": "C:\\w64devkit\\bin;C:\\go\\bin"
+          },
+          "cwd": "${workspaceFolder}"
+      }
+  },
+  "terminal.integrated.defaultProfile.windows": "w64devkit"
 }
