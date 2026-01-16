@@ -32,41 +32,41 @@ const char *osGetValue(const char *name) {
     static char value[256] = {0};
     FILE *file;
     char line[512];
-    
+
     // Clear previous value
     value[0] = '\0';
-    
+
     file = fopen("/etc/os-release", "r");
     if (file == NULL) {
         return NULL;
     }
-    
+
     while (fgets(line, sizeof(line), file)) {
         // Skip comments and empty lines
         if (line[0] == '#' || line[0] == '\n' || line[0] == '\0') {
             continue;
         }
-        
+
         // Remove trailing newline
         line[strcspn(line, "\n")] = '\0';
-        
+
         // Find the equals sign
         char *equals = strchr(line, '=');
         if (equals == NULL) {
             continue;
         }
-        
+
         // Split key and value
         *equals = '\0';
         char *key = line;
         char *val = equals + 1;
-        
+
         // Remove quotes from value if present
         if (val[0] == '"' && val[strlen(val)-1] == '"') {
             val[strlen(val)-1] = '\0';
             val++;
         }
-        
+
         // Check if this is the key we're looking for
         if (strcmp(key, name) == 0) {
             strncpy(value, val, sizeof(value) - 1);
@@ -74,9 +74,9 @@ const char *osGetValue(const char *name) {
             break;
         }
     }
-    
+
     fclose(file);
-    
+
     // Return NULL if value is empty, otherwise return the value
     return (value[0] == '\0') ? NULL : value;
 }
@@ -142,6 +142,25 @@ int _glfwInitSDL2(void) {
     _glfw.sdl2.sdl.JoystickButtonEventCodeById = (PFN_SDL_JoystickButtonEventCodeById) _glfwPlatformGetModuleSymbol(_glfw.sdl2.sdl.handle, "SDL_JoystickButtonEventCodeById");
     _glfw.sdl2.sdl.JoystickHatEventCodeById = (PFN_SDL_JoystickHatEventCodeById) _glfwPlatformGetModuleSymbol(_glfw.sdl2.sdl.handle, "SDL_JoystickHatEventCodeById");
     _glfw.sdl2.sdl.NumJoysticks = (PFN_SDL_NumJoysticks) _glfwPlatformGetModuleSymbol(_glfw.sdl2.sdl.handle, "SDL_NumJoysticks");
+    _glfw.sdl2.sdl.SetWindowPosition = (PFN_SDL_SetWindowPosition) _glfwPlatformGetModuleSymbol(_glfw.sdl2.sdl.handle, "SDL_SetWindowPosition");
+    _glfw.sdl2.sdl.GetWindowPosition = (PFN_SDL_GetWindowPosition) _glfwPlatformGetModuleSymbol(_glfw.sdl2.sdl.handle, "SDL_GetWindowPosition");
+    _glfw.sdl2.sdl.SetWindowSize = (PFN_SDL_SetWindowSize) _glfwPlatformGetModuleSymbol(_glfw.sdl2.sdl.handle, "SDL_SetWindowSize");
+    _glfw.sdl2.sdl.GetMouseState = (PFN_SDL_GetMouseState) _glfwPlatformGetModuleSymbol(_glfw.sdl2.sdl.handle, "SDL_GetMouseState");
+    _glfw.sdl2.sdl.WarpMouseInWindow = (PFN_SDL_WarpMouseInWindow) _glfwPlatformGetModuleSymbol(_glfw.sdl2.sdl.handle, "SDL_WarpMouseInWindow");
+    _glfw.sdl2.sdl.SetWindowResizable = (PFN_SDL_SetWindowResizable) _glfwPlatformGetModuleSymbol(_glfw.sdl2.sdl.handle, "SDL_SetWindowResizable");
+    _glfw.sdl2.sdl.SetWindowBordered = (PFN_SDL_SetWindowBordered) _glfwPlatformGetModuleSymbol(_glfw.sdl2.sdl.handle, "SDL_SetWindowBordered");
+    _glfw.sdl2.sdl.SetWindowAlwaysOnTop = (PFN_SDL_SetWindowAlwaysOnTop) _glfwPlatformGetModuleSymbol(_glfw.sdl2.sdl.handle, "SDL_SetWindowAlwaysOnTop");
+    _glfw.sdl2.sdl.SetWindowMouseGrab = (PFN_SDL_SetWindowMouseGrab) _glfwPlatformGetModuleSymbol(_glfw.sdl2.sdl.handle, "SDL_SetWindowMouseGrab");
+    _glfw.sdl2.sdl.ShowCursor = (PFN_SDL_ShowCursor) _glfwPlatformGetModuleSymbol(_glfw.sdl2.sdl.handle, "SDL_ShowCursor");
+    _glfw.sdl2.sdl.CreateSystemCursor = (PFN_SDL_CreateSystemCursor) _glfwPlatformGetModuleSymbol(_glfw.sdl2.sdl.handle, "SDL_CreateSystemCursor");
+    _glfw.sdl2.sdl.SetCursor = (PFN_SDL_SetCursor) _glfwPlatformGetModuleSymbol(_glfw.sdl2.sdl.handle, "SDL_SetCursor");
+    _glfw.sdl2.sdl.SetRelativeMouseMode = (PFN_SDL_SetRelativeMouseMode) _glfwPlatformGetModuleSymbol(_glfw.sdl2.sdl.handle, "SDL_SetRelativeMouseMode");
+    _glfw.sdl2.sdl.GetNumVideoDisplays = (PFN_SDL_GetNumVideoDisplays) _glfwPlatformGetModuleSymbol(_glfw.sdl2.sdl.handle, "SDL_GetNumVideoDisplays");
+    _glfw.sdl2.sdl.GetDisplayBounds = (PFN_SDL_GetDisplayBounds) _glfwPlatformGetModuleSymbol(_glfw.sdl2.sdl.handle, "SDL_GetDisplayBounds");
+    _glfw.sdl2.sdl.GetDisplayName = (PFN_SDL_GetDisplayName) _glfwPlatformGetModuleSymbol(_glfw.sdl2.sdl.handle, "SDL_GetDisplayName");
+    _glfw.sdl2.sdl.GetNumDisplayModes = (PFN_SDL_GetNumDisplayModes) _glfwPlatformGetModuleSymbol(_glfw.sdl2.sdl.handle, "SDL_GetNumDisplayModes");
+    _glfw.sdl2.sdl.GetDisplayMode = (PFN_SDL_GetDisplayMode) _glfwPlatformGetModuleSymbol(_glfw.sdl2.sdl.handle, "SDL_GetDisplayMode");
+    _glfw.sdl2.sdl.GetPixelFormatName = (PFN_SDL_GetPixelFormatName) _glfwPlatformGetModuleSymbol(_glfw.sdl2.sdl.handle, "SDL_GetPixelFormatName");
 
     if (!_glfw.sdl2.sdl.Init ||
         !_glfw.sdl2.sdl.Quit ||
@@ -182,7 +201,25 @@ int _glfwInitSDL2(void) {
         !_glfw.sdl2.sdl.JoystickOpen ||
         !_glfw.sdl2.sdl.JoystickClose ||
         !_glfw.sdl2.sdl.JoystickInstanceID ||
-        !_glfw.sdl2.sdl.NumJoysticks) {
+        !_glfw.sdl2.sdl.NumJoysticks ||
+        !_glfw.sdl2.sdl.SetWindowPosition ||
+        !_glfw.sdl2.sdl.GetWindowPosition ||
+        !_glfw.sdl2.sdl.SetWindowSize ||
+        !_glfw.sdl2.sdl.GetMouseState ||
+        !_glfw.sdl2.sdl.WarpMouseInWindow ||
+        !_glfw.sdl2.sdl.SetWindowResizable ||
+        !_glfw.sdl2.sdl.SetWindowBordered ||
+        !_glfw.sdl2.sdl.SetWindowAlwaysOnTop ||
+    	!_glfw.sdl2.sdl.SetWindowMouseGrab ||
+     	!_glfw.sdl2.sdl.ShowCursor ||
+        !_glfw.sdl2.sdl.CreateSystemCursor ||
+        !_glfw.sdl2.sdl.SetCursor ||
+        !_glfw.sdl2.sdl.SetRelativeMouseMode ||
+        !_glfw.sdl2.sdl.GetNumVideoDisplays ||
+        !_glfw.sdl2.sdl.GetDisplayBounds ||
+        !_glfw.sdl2.sdl.GetDisplayName
+    )
+    {
         _glfwInputError(GLFW_PLATFORM_ERROR,
             "SDL2: Failed to load SDL functions entry point");
         return GLFW_FALSE;
@@ -203,10 +240,47 @@ int _glfwInitSDL2(void) {
                  _glfw.sdl2.linked.major,
                  _glfw.sdl2.linked.minor,
                  _glfw.sdl2.linked.patch);
+
+    int display_count = SDL_GetNumVideoDisplays();
+    for (int i = 0; i < display_count; i++) {
+        const char* display_name = SDL_GetDisplayName(i);
+        SDL_Rect bounds;
+        if (SDL_GetDisplayBounds(i, &bounds) == 0) {
+            _GLFWmonitor* monitor = _glfwAllocMonitor(SDL_GetDisplayName(i), bounds.w, bounds.h);
+
+            int modes_count = SDL_GetNumDisplayModes(i);
+            if (modes_count < 1) {
+                printf("  No display modes available: %s\n", SDL_GetError());
+            } else {
+            	monitor->modeCount = modes_count;
+             	monitor->modes = _glfw_calloc(modes_count, sizeof(GLFWvidmode));
+                for (int j = 0; j < modes_count; j++) {
+                    SDL_DisplayMode mode;
+                    if (SDL_GetDisplayMode(i, j, &mode) == 0) {
+                        monitor->modes[j].width = mode.w;
+                        monitor->modes[j].height = mode.h;
+                        monitor->modes[j].refreshRate = mode.refresh_rate;
+                        monitor->modes[j].redBits = SDL_BITSPERPIXEL(mode.format);
+                        monitor->modes[j].greenBits = SDL_BITSPERPIXEL(mode.format);
+                        monitor->modes[j].blueBits = SDL_BITSPERPIXEL(mode.format);
+                    }
+                }
+            }
+
+            _glfwInputMonitor(monitor, GLFW_CONNECTED, _GLFW_INSERT_LAST);
+        } else {
+            printf("  Could not get bounds: %s\n", SDL_GetError());
+        }
+    }
+
     return GLFW_TRUE;
 }
 
 void _glfwTerminateSDL2(void) {
+    // Clean up any remaining monitors, no need because glfw.Terminate handles it
+    // for (int i = 0; i < _glfw.monitorCount; i++) {
+    //     _glfwFreeMonitor(_glfw.monitors[i]);
+    // }
     SDL_Quit();
     // Free the library
     if (_glfw.sdl2.sdl.handle) {
@@ -238,10 +312,10 @@ static void swapBuffersSDL2(_GLFWwindow* window) {
 #ifdef __linux__
     static unsigned int frame = 0;
 #endif
-#endif    
+#endif
     SDL_GL_SwapWindow(window->sdl2.window);
 #ifdef DEBUG
-#ifdef __linux__    
+#ifdef __linux__
     int64_t cur_time = get_time_ns();
     if (cur_time > (_glfw.report_time + NSEC_PER_SEC)) {
         debug_printf("Render %u fps\n", frame);
@@ -383,17 +457,138 @@ void _glfwGetWindowSizeSDL2(_GLFWwindow* window, int* width, int* height) {
     SDL_GetWindowSize(window->sdl2.window, width, height);
 }
 
+// _glfwSetWindowIconSDL2 implementation
+void _glfwSetWindowIconSDL2(_GLFWwindow* window, int count, const GLFWimage* images) {
+    // SDL2 does not support setting window icon after creation
+    // This function is a no-op
+    (void) window;
+    (void) count;
+    (void) images;
+}
+
+// _glfwSetWindowPosSDL2 implementation
+void _glfwSetWindowPosSDL2(_GLFWwindow* window, int xpos, int ypos) {
+    SDL_SetWindowPosition(window->sdl2.window, xpos, ypos);
+}
+
+// _glfwGetWindowPosSDL2 implementation
+void _glfwGetWindowPosSDL2(_GLFWwindow* window, int* xpos, int* ypos) {
+    SDL_GetWindowPosition(window->sdl2.window, xpos, ypos);
+}
+
+// _glfwSetWindowSizeSDL2 implementation
+void _glfwSetWindowSizeSDL2(_GLFWwindow* window, int width, int height) {
+    SDL_SetWindowSize(window->sdl2.window, width, height);
+}
+
+// _glfwGetCursorPosSDL2 implementation
+void _glfwGetCursorPosSDL2(_GLFWwindow* window, double* xpos, double* ypos) {
+    int x, y;
+    SDL_GetMouseState(&x, &y);
+    if (xpos)
+        *xpos = (double)x;
+    if (ypos)
+        *ypos = (double)y;
+}
+
+// _glfwSetCursorPosSDL2 implementation
+void _glfwSetCursorPosSDL2(_GLFWwindow* window, double xpos, double ypos) {
+    SDL_WarpMouseInWindow(window->sdl2.window, (int)xpos, (int)ypos);
+}
+
+// _glfwSetCursorModeSDL2 implementation
+void _glfwSetCursorModeSDL2(_GLFWwindow* window, int mode) {
+    // Uint32 sdlMode;
+    // switch (mode) {
+    //     case GLFW_CURSOR_NORMAL:
+    //         sdlMode = SDL_SYSTEM_CURSOR_ARROW;
+    //         SDL_ShowCursor(SDL_ENABLE);
+    //         break;
+    //     case GLFW_CURSOR_HIDDEN:
+    //         SDL_ShowCursor(SDL_DISABLE);
+    //         return;
+    //     case GLFW_CURSOR_DISABLED:
+    //         SDL_ShowCursor(SDL_DISABLE);
+    //         SDL_SetRelativeMouseMode(SDL_TRUE);
+    //         return;
+    //     default:
+    //         return;
+    // }
+    // SDL_ShowCursor(SDL_ENABLE);
+    // static SDL_Cursor* cursor = NULL;
+    // if (cursor) {
+    //     SDL_FreeCursor(cursor);
+    //     cursor = NULL;
+    // }
+    /* Use the dynamically loaded SDL function pointer instead of calling
+       SDL_CreateSystemCursor directly to avoid mismatches with headers that
+       may declare a different return type. */
+    // if (_glfw.sdl2.sdl.CreateSystemCursor) {
+    //     cursor = _glfw.sdl2.sdl.CreateSystemCursor(sdlMode);
+    // } else {
+    //     cursor = NULL;
+    // }
+    // if (cursor) {
+    //     if (_glfw.sdl2.sdl.SetCursor)
+    //         _glfw.sdl2.sdl.SetCursor(cursor);
+    // }
+}
+
+// _glfwSetRawMouseMotionSDL2 implementation
+void _glfwSetRawMouseMotionSDL2(_GLFWwindow* window, GLFWbool enabled) {
+    SDL_SetRelativeMouseMode(enabled ? SDL_TRUE : SDL_FALSE);
+}
+
+// _glfwRawMouseMotionSupportedSDL2 implementation
+GLFWbool _glfwRawMouseMotionSupportedSDL2(void) {
+    return GLFW_TRUE;
+}
+
+// _glfwSetWindowResizableSDL2 implementation
+void _glfwSetWindowResizableSDL2(_GLFWwindow* window, GLFWbool enabled) {
+    SDL_SetWindowResizable(window->sdl2.window, enabled ? SDL_TRUE : SDL_FALSE);
+}
+
+// _glfwSetWindowDecoratedSDL2 implementation
+void _glfwSetWindowDecoratedSDL2(_GLFWwindow* window, GLFWbool enabled) {
+    SDL_SetWindowBordered(window->sdl2.window, enabled ? SDL_TRUE : SDL_FALSE);
+}
+
+// _glfwSetWindowFloatingSDL2 implementation
+void _glfwSetWindowFloatingSDL2(_GLFWwindow* window, GLFWbool enabled) {
+    SDL_SetWindowAlwaysOnTop(window->sdl2.window, enabled ? SDL_TRUE : SDL_FALSE);
+}
+
+void _glfwSetWindowMousePassthroughSDL2(_GLFWwindow* window, GLFWbool enabled) {
+    SDL_SetWindowMouseGrab(window->sdl2.window, enabled ? SDL_FALSE : SDL_TRUE);
+}
+
+GLFWbool _glfwGetVideoModeSDL2(_GLFWmonitor* monitor, GLFWvidmode* mode) {
+    mode->width = monitor->modes[0].width;
+    mode->height = monitor->modes[0].height;
+    mode->redBits = monitor->modes[0].redBits;
+    mode->greenBits = monitor->modes[0].greenBits;
+    mode->blueBits = monitor->modes[0].blueBits;
+    mode->refreshRate = monitor->modes[0].refreshRate;
+    return GLFW_TRUE;
+}
+
+GLFWvidmode* _glfwGetVideoModesSDL2(_GLFWmonitor* monitor, int* found) {
+    *found = 1;
+    return _glfw.monitors[0]->modes;
+}
+
 GLFWbool _glfwConnectSDL2(int platformID, _GLFWplatform* platform) {
     const _GLFWplatform sdl2 =
     {
         .platformID = GLFW_PLATFORM_SDL2,
         .init = _glfwInitSDL2,
         .terminate = _glfwTerminateSDL2,
-        // .getCursorPos = _glfwGetCursorPosSDL2,
-        // .setCursorPos = _glfwSetCursorPosSDL2,
-        // .setCursorMode = _glfwSetCursorModeSDL2,
-        // .setRawMouseMotion = _glfwSetRawMouseMotionSDL2,
-        // .rawMouseMotionSupported = _glfwRawMouseMotionSupportedSDL2,
+        .getCursorPos = _glfwGetCursorPosSDL2,
+        .setCursorPos = _glfwSetCursorPosSDL2,
+        .setCursorMode = _glfwSetCursorModeSDL2,
+        .setRawMouseMotion = _glfwSetRawMouseMotionSDL2,
+        .rawMouseMotionSupported = _glfwRawMouseMotionSupportedSDL2,
         // .createCursor = _glfwCreateCursorSDL2,
         // .createStandardCursor = _glfwCreateStandardCursorSDL2,
         // .destroyCursor = _glfwDestroyCursorSDL2,
@@ -419,18 +614,18 @@ GLFWbool _glfwConnectSDL2(int platformID, _GLFWplatform* platform) {
         // .getMonitorPos = _glfwGetMonitorPosSDL2,
         // .getMonitorContentScale = _glfwGetMonitorContentScaleSDL2,
         // .getMonitorWorkarea = _glfwGetMonitorWorkareaSDL2,
-        // .getVideoModes = _glfwGetVideoModesSDL2,
-        // .getVideoMode = _glfwGetVideoModeSDL2,
+        .getVideoModes = _glfwGetVideoModesSDL2,
+        .getVideoMode = _glfwGetVideoModeSDL2,
         // .getGammaRamp = _glfwGetGammaRampSDL2,
         // .setGammaRamp = _glfwSetGammaRampSDL2,
         .createWindow = _glfwCreateWindowSDL2,
         .destroyWindow = _glfwDestroyWindowSDL2,
         // .setWindowTitle = _glfwSetWindowTitleSDL2,
-        // .setWindowIcon = _glfwSetWindowIconSDL2,
-        // .getWindowPos = _glfwGetWindowPosSDL2,
-        // .setWindowPos = _glfwSetWindowPosSDL2,
+        .setWindowIcon = _glfwSetWindowIconSDL2,
+        .getWindowPos = _glfwGetWindowPosSDL2,
+        .setWindowPos = _glfwSetWindowPosSDL2,
         .getWindowSize = _glfwGetWindowSizeSDL2,
-        // .setWindowSize = _glfwSetWindowSizeSDL2,
+        .setWindowSize = _glfwSetWindowSizeSDL2,
         // .setWindowSizeLimits = _glfwSetWindowSizeLimitsSDL2,
         // .setWindowAspectRatio = _glfwSetWindowAspectRatioSDL2,
         .getFramebufferSize = _glfwGetFramebufferSizeSDL2,
@@ -451,11 +646,11 @@ GLFWbool _glfwConnectSDL2(int platformID, _GLFWplatform* platform) {
         // .windowHovered = _glfwWindowHoveredSDL2,
         // .framebufferTransparent = _glfwFramebufferTransparentSDL2,
         // .getWindowOpacity = _glfwGetWindowOpacitySDL2,
-        // .setWindowResizable = _glfwSetWindowResizableSDL2,
-        // .setWindowDecorated = _glfwSetWindowDecoratedSDL2,
-        // .setWindowFloating = _glfwSetWindowFloatingSDL2,
+        .setWindowResizable = _glfwSetWindowResizableSDL2,
+        .setWindowDecorated = _glfwSetWindowDecoratedSDL2,
+        .setWindowFloating = _glfwSetWindowFloatingSDL2,y
         // .setWindowOpacity = _glfwSetWindowOpacitySDL2,
-        // .setWindowMousePassthrough = _glfwSetWindowMousePassthroughSDL2,
+        .setWindowMousePassthrough = _glfwSetWindowMousePassthroughSDL2,
         .pollEvents = _glfwPollEventsSDL2,
         // .waitEvents = _glfwWaitEventsSDL2,
         // .waitEventsTimeout = _glfwWaitEventsTimeoutSDL2,

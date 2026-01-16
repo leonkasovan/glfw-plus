@@ -45,6 +45,26 @@ typedef int (* PFN_SDL_JoystickAxisEventCodeById)(int device_instance_id, int ax
 typedef int (* PFN_SDL_JoystickButtonEventCodeById)(int device_instance_id, int button); // optional
 typedef int (* PFN_SDL_JoystickHatEventCodeById)(int device_instance_id, int hat); // optional
 typedef int (* PFN_SDL_NumJoysticks)(void);
+typedef void (* PFN_SDL_SetWindowPosition)(SDL_Window* window, int x, int y);
+typedef void (* PFN_SDL_GetWindowPosition)(SDL_Window* window, int* x, int* y);
+typedef void (* PFN_SDL_SetWindowSize)(SDL_Window* window, int w, int h);
+typedef void (* PFN_SDL_GetMouseState)(int* x, int* y);
+typedef void (* PFN_SDL_WarpMouseInWindow)(SDL_Window* window, int x, int y);
+typedef void (* PFN_SDL_SetRelativeMouseMode)(SDL_bool enabled);
+typedef void (* PFN_SDL_SetWindowResizable)(SDL_Window* window, SDL_bool resizable);
+typedef void (* PFN_SDL_SetWindowBordered)(SDL_Window* window, SDL_bool bordered);
+typedef void (* PFN_SDL_SetWindowAlwaysOnTop)(SDL_Window* window, SDL_bool on_top);
+typedef void (* PFN_SDL_SetWindowMouseGrab)(SDL_Window* window, SDL_bool grabbed);
+typedef void (* PFN_SDL_ShowCursor)(SDL_SystemCursor toggle);
+typedef void (* PFN_SDL_CreateSystemCursor)(SDL_SystemCursor id);
+typedef void (* PFN_SDL_SetCursor)(SDL_Cursor* cursor);
+typedef void (* PFN_SDL_SetRelativeMouseMode)(SDL_bool enabled);
+typedef int (* PFN_SDL_GetNumVideoDisplays)(void);
+typedef int (* PFN_SDL_GetDisplayBounds)(int displayIndex, SDL_Rect* rect);
+typedef const char* (* PFN_SDL_GetDisplayName)(int displayIndex);
+typedef int (* PFN_SDL_GetNumDisplayModes)(int displayIndex);
+typedef int (* PFN_SDL_GetDisplayMode)(int displayIndex, int modeIndex, SDL_DisplayMode* mode);
+typedef const char* (* PFN_SDL_GetPixelFormatName)(Uint32 format);
 
 #define SDL_Init _glfw.sdl2.sdl.Init
 #define SDL_Quit _glfw.sdl2.sdl.Quit
@@ -90,6 +110,26 @@ typedef int (* PFN_SDL_NumJoysticks)(void);
 #define SDL_JoystickButtonEventCodeById _glfw.sdl2.sdl.JoystickButtonEventCodeById
 #define SDL_JoystickHatEventCodeById _glfw.sdl2.sdl.JoystickHatEventCodeById
 #define SDL_NumJoysticks _glfw.sdl2.sdl.NumJoysticks
+#define SDL_SetWindowPosition _glfw.sdl2.sdl.SetWindowPosition
+#define SDL_GetWindowPosition _glfw.sdl2.sdl.GetWindowPosition
+#define SDL_SetWindowSize _glfw.sdl2.sdl.SetWindowSize
+#define SDL_GetMouseState _glfw.sdl2.sdl.GetMouseState
+#define SDL_WarpMouseInWindow _glfw.sdl2.sdl.WarpMouseInWindow
+#define SDL_SetRelativeMouseMode _glfw.sdl2.sdl.SetRelativeMouseMode
+#define SDL_SetWindowResizable _glfw.sdl2.sdl.SetWindowResizable
+#define SDL_SetWindowBordered _glfw.sdl2.sdl.SetWindowBordered
+#define SDL_SetWindowAlwaysOnTop _glfw.sdl2.sdl.SetWindowAlwaysOnTop
+#define SDL_SetWindowMouseGrab _glfw.sdl2.sdl.SetWindowMouseGrab
+#define SDL_ShowCursor _glfw.sdl2.sdl.ShowCursor
+#define SDL_CreateSystemCursor _glfw.sdl2.sdl.CreateSystemCursor
+#define SDL_SetCursor _glfw.sdl2.sdl.SetCursor
+#define SDL_SetRelativeMouseMode _glfw.sdl2.sdl.SetRelativeMouseMode
+#define SDL_GetNumVideoDisplays _glfw.sdl2.sdl.GetNumVideoDisplays
+#define SDL_GetDisplayBounds _glfw.sdl2.sdl.GetDisplayBounds
+#define SDL_GetDisplayName _glfw.sdl2.sdl.GetDisplayName
+#define SDL_GetNumDisplayModes _glfw.sdl2.sdl.GetNumDisplayModes
+#define SDL_GetDisplayMode _glfw.sdl2.sdl.GetDisplayMode
+#define SDL_GetPixelFormatName _glfw.sdl2.sdl.GetPixelFormatName
 
 #define GLFW_SDL2_WINDOW_STATE         _GLFWwindowSDL2  sdl2;
 #define GLFW_SDL2_LIBRARY_WINDOW_STATE _GLFWlibrarySDL2 sdl2;
@@ -152,6 +192,25 @@ typedef struct _GLFWlibrarySDL2 {
 		PFN_SDL_JoystickButtonEventCodeById JoystickButtonEventCodeById; // optional
 		PFN_SDL_JoystickHatEventCodeById JoystickHatEventCodeById; // optional
 		PFN_SDL_NumJoysticks NumJoysticks;
+		PFN_SDL_SetWindowPosition SetWindowPosition;
+		PFN_SDL_GetWindowPosition GetWindowPosition;
+		PFN_SDL_SetWindowSize SetWindowSize;
+		PFN_SDL_GetMouseState GetMouseState;
+		PFN_SDL_WarpMouseInWindow WarpMouseInWindow;
+		PFN_SDL_SetWindowResizable SetWindowResizable;
+		PFN_SDL_SetWindowBordered SetWindowBordered;
+		PFN_SDL_SetWindowAlwaysOnTop SetWindowAlwaysOnTop;
+		PFN_SDL_SetWindowMouseGrab SetWindowMouseGrab;
+		PFN_SDL_ShowCursor ShowCursor;
+		PFN_SDL_CreateSystemCursor CreateSystemCursor;
+		PFN_SDL_SetCursor SetCursor;
+		PFN_SDL_SetRelativeMouseMode SetRelativeMouseMode;
+		PFN_SDL_GetNumVideoDisplays GetNumVideoDisplays;
+		PFN_SDL_GetDisplayBounds GetDisplayBounds;
+		PFN_SDL_GetDisplayName GetDisplayName;
+		PFN_SDL_GetNumDisplayModes GetNumDisplayModes;
+		PFN_SDL_GetDisplayMode GetDisplayMode;
+		PFN_SDL_GetPixelFormatName GetPixelFormatName;
 	} sdl;
 
 } _GLFWlibrarySDL2;

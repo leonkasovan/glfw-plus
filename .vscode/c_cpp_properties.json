@@ -6,13 +6,12 @@
                 "${workspaceFolder}/**"
             ],
             "defines": [
-                "_GLFW_KMSDRM",
-                "GLFW_BUILD_POSIX_POLL"
+                "_GLFW_WIN32"
             ],
-            "compilerPath": "/usr/bin/gcc",
+            "compilerPath": "f:/w64devkit/bin/gcc.exe",
             "cStandard": "c17",
             "cppStandard": "gnu++17",
-            "intelliSenseMode": "linux-gcc-arm64",
+            "intelliSenseMode": "linux-gcc-x64",
             "compilerArgs": [
                 "\"--sysroot\""
             ]
